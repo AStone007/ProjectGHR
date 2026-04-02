@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main(void) {
-    char[] fileinput;
+    char fileinput[256];
     printf("Enter file name or desitination:/n");
     scanf("%s", fileinput);
     FILE *fp = fopen(fileinput, "r");
