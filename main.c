@@ -1,21 +1,11 @@
-#include <stdio.h>
+#include "io.h"
 
-int main(void) {
-    char fileinput[256];
-    printf("Enter file name or desitination:/n");
-    scanf("%s", fileinput);
-    FILE *fp = fopen(fileinput, "r");
-    if (fp == NULL) {
-        printf("Error opening file.\n");
-        return 1;
-    }
+int main(void)
+{
+    int a = 3;
+    int b = 2;
 
-    char line[256];
+    int c = access_test(a, b);
 
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        printf("%s", line);
-    }
-
-    fclose(fp);
-    return 0;
+    return c;
 }
