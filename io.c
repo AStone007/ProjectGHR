@@ -52,3 +52,60 @@ Directory* allocate_directory(int num_files) {
 
     return dir;
 }
+
+/*.........................................................
+ *.....................load directory.....................
+ *.........................................................*/
+Directory* load_directory(const char *path) {
+                            //const ensures no accidental change to path
+    char temp_path[256];
+    strcpy(temp_path, path);//use temp path as path cannot be manipulated
+    DIR *dir = opendir(temp_path);
+
+    //if directory finding fails, get new directory
+    while (dir == NULL)
+    {
+        printf("ERROR: Trouble opening directory\n");
+        printf("Enter directory path: ");
+        scanf("%255s", temp_path);
+        dir = opendir(temp_path);
+    }
+
+    //count csv files
+    struct dirent *entry;
+    int file_counter = 0;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (strstr(entry->d_name, ".csv") != NULL)
+            {file_counter++;}
+    }
+
+    //allocate directory structure
+    Directory *directory = allocate_directory(file_counter);
+    if (directory == NULL) {closedir(dir); return NULL;}
+
+    //store path
+    strcpy(directory->path, temp_path);
+
+    //load data, record file names
+    rewinddir(dir); //to go through the file again to load data
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (strstr(entry->d_name, ".csv") != NULL)
+        {
+            File *current = &directory->files[directory->file_count];
+            char full_path[512];
+            snprintf(full_path, sizeof(full_path), "%s/%s", temp_path, entry->d_name);
+            current->samples = load_file(full_path, &current->num_samples);
+            if (current->samples != NULL)
+            {
+                strcpy(current->filename, entry->d_name);
+                directory->file_count++;
+            }
+        }
+    }
+    closedir(dir);
+
+    return directory;
+}
+

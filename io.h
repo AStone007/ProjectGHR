@@ -22,6 +22,7 @@ typedef struct {
 } File;
 
 typedef struct {
+    char path[256];
     File *files;
     int file_count;
 } Directory;
