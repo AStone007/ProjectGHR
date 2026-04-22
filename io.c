@@ -183,3 +183,17 @@ void write_result(File *file, const char *variable_name, double value) {
     fprintf(out, "%s: %.5f\n", variable_name, value);
     fclose(out);
 }
+
+/*................................................
+ *.........clean memory...........................
+ *................................................*/
+
+void free_directory(Directory *dir) {
+
+    if (dir == NULL) return;
+    for (int i = 0; i < dir->file_count; i++) {
+        free(dir->files[i].samples);
+    }
+    free(dir->files);
+    free(dir);
+}
