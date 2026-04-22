@@ -31,7 +31,7 @@ typedef struct {
 int access_test(int a, int b);
 
 WaveformSample* assign_memory(int num_samples);
-void get_directory_input(char *input_directory);
+Directory* allocate_directory(int num_files);
 Directory* load_directory(const char *path);
 WaveformSample* load_file(const char *filepath, int *num_samples);
 int parse_line(char *line, WaveformSample *sample);
