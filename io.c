@@ -109,3 +109,29 @@ Directory* load_directory(const char *path) {
     return directory;
 }
 
+/*.........................................................
+ *................Load each csv file.......................
+ *.........................................................*/
+WaveformSample* load_file(const char *filepath, int *num_samples) {
+
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL)
+    {
+        printf("Error: Cannot open file %s\n", filepath);
+        return NULL;
+    }
+
+    int rows = 1000;
+    WaveformSample *data = assign_memory(rows);
+    if (data == NULL) {fclose(file); return NULL;}
+
+    char line[MAX_LINE_LENGTH];
+    fgets(line, sizeof(line), file);
+
+    int i = 0;
+    while (fgets(line, sizeof(line), file) && i < rows)
+    {if (parse_line(line, &data[i])) {i++;}} //function defined later. if line parse success, move to next line
+    *num_samples = i;
+    fclose(file);
+    return data;
+}
