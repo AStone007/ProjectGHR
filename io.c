@@ -48,7 +48,7 @@ Directory* allocate_directory(int num_files) {
         printf("ERROR: Trouble allocating memory for File array\n");
         free(dir);
         return NULL;}
-    else {printf("PROGRESS: Memory space allocated (File array)\n")}
+    else {printf("PROGRESS: Memory space allocated (File array)\n");}
 
     return dir;
 }
@@ -134,4 +134,30 @@ WaveformSample* load_file(const char *filepath, int *num_samples) {
     *num_samples = i;
     fclose(file);
     return data;
+}
+
+/*.........................................................
+ *.................parse data from csv file................
+ *.........................................................*/
+int parse_line(char *line, WaveformSample *sample) {
+
+    char *token;
+    int field = 0;
+    token = strtok(line, ",");
+    while (token != NULL && field < 8) { //while not at end of columns or rows
+        double value = strtod(token, NULL);
+        switch (field) { //to control which column is "written" to
+            case 0: sample->timestamp = value; break;
+            case 1: sample->phase_A_voltage = value; break;
+            case 2: sample->phase_B_voltage = value; break;
+            case 3: sample->phase_C_voltage = value; break;
+            case 4: sample->line_current = value; break;
+            case 5: sample->frequency = value; break;
+            case 6: sample->power_factor = value; break;
+            case 7: sample->thd_percent = value; break;
+        }
+        token = strtok(NULL, ",");
+        field++;
+    }
+    return (field == 8);
 }
