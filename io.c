@@ -161,3 +161,25 @@ int parse_line(char *line, WaveformSample *sample) {
     }
     return (field == 8);
 }
+
+/*...................................................
+  .............write results to file.................
+ *...................................................*/
+
+void write_result(File *file, const char *variable_name, double value) {
+
+    char result_filename[512];
+    char base_name[256];
+    snprintf(base_name, sizeof(base_name), "%s", file->filename);
+    char *dot = strrchr(base_name, '.');    //look for dot in csv filename
+    if (dot != NULL) {*dot = '\0';}             //replace dot with \0 so base_name does not use .csv at end
+    snprintf(result_filename, sizeof(result_filename),"%s_results.txt", base_name);
+
+    FILE *out = fopen(result_filename, "a");
+    if (out == NULL) {
+        printf("Error: Could not open output file\n");
+        return;
+    }
+    fprintf(out, "%s: %.5f\n", variable_name, value);
+    fclose(out);
+}
