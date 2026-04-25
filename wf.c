@@ -1,12 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include "wf.h"
+#include "io.h"
 
 double get_voltage(WaveformSample sample, Phase phase) {
 
-    switch (phase)
-    {
+    switch (phase) {
         case PHASE_A: return sample.phase_A_voltage;
         case PHASE_B: return sample.phase_B_voltage;
         case PHASE_C: return sample.phase_C_voltage;

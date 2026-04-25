@@ -1,10 +1,10 @@
 #ifndef CODINGPROJECT_IO_H
 #define CODINGPROJECT_IO_H
-#define MAX_LINE_LENGTH 256 // buffer size for each line (not number of rows)
-#include "wf.h"
 
-// define structs
-typedef struct ClippingResult ClippingResult;
+#include <stdio.h>
+#include <dirent.h>
+
+#define MAX_LINE_LENGTH 256
 
 typedef struct {
     double timestamp;
@@ -29,7 +29,16 @@ typedef struct {
     int file_count;
 } Directory;
 
-// declare functions for use in main.c
+// ✅ MOVE ClippingResult HERE (VERY IMPORTANT)
+typedef struct {
+    int count_A;
+    int count_B;
+    int count_C;
+    double times_A[1000];
+    double times_B[1000];
+    double times_C[1000];
+} ClippingResult;
+
 int access_test(int a, int b);
 
 WaveformSample* assign_memory(int num_samples);
@@ -37,11 +46,10 @@ Directory* allocate_directory(int num_files);
 Directory* load_directory(const char *path);
 WaveformSample* load_file(const char *filepath, int *num_samples);
 int parse_line(char *line, WaveformSample *sample);
+
 void write_result(File *file, const char *variable_name, double value);
 void write_clipping_result(File *file, ClippingResult result);
+
 void free_directory(Directory *dir);
 
-#endif //CODINGPROJECT_IO_H//
-// Created by HP on 09/04/2026.
-//
-
+#endif

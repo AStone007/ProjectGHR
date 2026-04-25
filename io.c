@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
 #include "io.h"
+#include "wf.h"
 
 /*.........................................................
  *...test whether you can access this code from main.c.....
