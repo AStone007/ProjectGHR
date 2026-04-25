@@ -103,6 +103,7 @@ Directory* load_directory(const char *path) {
             File *current = &directory->files[directory->file_count];
             char full_path[512];
             snprintf(full_path, sizeof(full_path), "%s/%s", temp_path, entry->d_name);
+            strcpy(current->filepath, full_path);
             current->samples = load_file(full_path, &current->num_samples);
             if (current->samples != NULL)
             {
@@ -180,7 +181,11 @@ void write_result(File *file, const char *variable_name, double value) {
     snprintf(base_name, sizeof(base_name), "%s", file->filename);
     char *dot = strrchr(base_name, '.');    //look for dot in csv filename
     if (dot != NULL) {*dot = '\0';}             //replace dot with \0 so base_name does not use .csv at end
-    snprintf(result_filename, sizeof(result_filename),"%s_results.txt", base_name);
+    char folder[512];
+    strcpy(folder, file->filepath);
+    char *last_slash = strrchr(folder, '/');
+    if (last_slash != NULL) *last_slash = '\0';
+    snprintf(result_filename, sizeof(result_filename),"%s/%s_results.txt", folder, base_name);
 
     FILE *out = fopen(result_filename, "a");
     if (out == NULL) {
@@ -198,7 +203,11 @@ void write_clipping_result(File *file, ClippingResult result)
     snprintf(base_name, sizeof(base_name), "%s", file->filename);
     char *dot = strrchr(base_name, '.');
     if (dot != NULL) *dot = '\0';
-    snprintf(result_filename, sizeof(result_filename), "%s_results.txt", base_name);
+    char folder[512];
+    strcpy(folder, file->filepath);
+    char *last_slash = strrchr(folder, '/');
+    if (last_slash != NULL) *last_slash = '\0';
+    snprintf(result_filename, sizeof(result_filename),"%s/%s_results.txt", folder, base_name);
     FILE *out = fopen(result_filename, "a");
     if (out == NULL) {
         printf("Error: Could not open output file\n");

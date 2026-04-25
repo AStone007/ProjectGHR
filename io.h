@@ -21,6 +21,7 @@ typedef struct {
     WaveformSample *samples;
     int num_samples;
     char filename[256];
+    char filepath[512];
 } File;
 
 typedef struct {
