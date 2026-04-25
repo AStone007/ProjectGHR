@@ -62,13 +62,20 @@ Directory* load_directory(const char *path) {
     strcpy(temp_path, path);//use temp path as path cannot be manipulated
     DIR *dir = opendir(temp_path);
 
-    //if directory finding fails, get new directory
-    while (dir == NULL)
-    {
-        printf("ERROR: Trouble opening directory\n");
+    // when initial (no directory) fails, dont call error
+    if (dir == NULL) {
         printf("Enter directory path: ");
         scanf("%255s", temp_path);
         dir = opendir(temp_path);
+
+        // now call error
+        while (dir == NULL)
+        {
+            printf("ERROR: Trouble opening directory\n");
+            printf("Enter directory path: ");
+            scanf("%255s", temp_path);
+            dir = opendir(temp_path);
+        }
     }
 
     //count csv files
