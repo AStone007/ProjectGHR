@@ -184,6 +184,43 @@ void write_result(File *file, const char *variable_name, double value) {
     fclose(out);
 }
 
+void write_clipping_result(File *file, ClippingResult result)
+{
+    char result_filename[512];
+    char base_name[256];
+    snprintf(base_name, sizeof(base_name), "%s", file->filename);
+    char *dot = strrchr(base_name, '.');
+    if (dot != NULL) *dot = '\0';
+    snprintf(result_filename, sizeof(result_filename), "%s_results.txt", base_name);
+    FILE *out = fopen(result_filename, "a");
+    if (out == NULL) {
+        printf("Error: Could not open output file\n");
+        return;
+    }
+    int total = file->num_samples;
+
+#define WRITE_PHASE(label, times, count, total)                 \
+    fprintf(out, "Clipping in %s: %d out of %d samples\n",       \
+        label, count, total);                               \
+    fprintf(out, "%s (", label);                                \
+    if (count == 0) {                                           \
+        fprintf(out, "None");                                   \
+    } else {                                                    \
+        for (int i = 0; i < count; i++) {                       \
+            fprintf(out, "%.4f", times[i]);                     \
+            if (i < count - 1) fprintf(out, ", ");              \
+        }                                                       \
+    }                                                           \
+    fprintf(out, "Clipping occurred at these times:\n");
+
+    WRITE_PHASE("Phase A", result.times_A, result.count_A, total);
+    WRITE_PHASE("Phase B", result.times_B, result.count_B, total);
+    WRITE_PHASE("Phase C", result.times_C, result.count_C, total);
+
+#undef WRITE_PHASE
+fclose(out);
+}
+
 /*................................................
  *.........clean memory...........................
  *................................................*/

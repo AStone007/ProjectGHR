@@ -1,8 +1,10 @@
 #ifndef CODINGPROJECT_IO_H
 #define CODINGPROJECT_IO_H
 #define MAX_LINE_LENGTH 256 // buffer size for each line (not number of rows)
+#include "wf.h"
 
 // define structs
+typedef struct ClippingResult ClippingResult;
 
 typedef struct {
     double timestamp;
@@ -36,6 +38,7 @@ Directory* load_directory(const char *path);
 WaveformSample* load_file(const char *filepath, int *num_samples);
 int parse_line(char *line, WaveformSample *sample);
 void write_result(File *file, const char *variable_name, double value);
+void write_clipping_result(File *file, ClippingResult result);
 void free_directory(Directory *dir);
 
 #endif //CODINGPROJECT_IO_H//
