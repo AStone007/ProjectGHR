@@ -60,45 +60,26 @@ double compute_std_dev(File *file, Phase phase) {
     double sum = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
         double v = get_voltage(file->samples[i], phase);
-        sum += (v - mean).^2;
+        sum += (v - mean) * (v - mean);
     }
     return sqrt(sum / file->num_samples);
 }
 
-//clipping/////////////////////////////////////////////////////////
+//clipping
 ClippingResult count_clipped(File *file, double limit) {
-
-    ClippingResult result = 0;
-    for (int i = 0; i < file->num_samples; i++) {
-        double Va = get_voltage(file->samples[i], PHASE_A);
-        double Vb = get_voltage(file->samples[i], PHASE_B);
-        double Vc = get_voltage(file->samples[i], PHASE_C);
-        if (abs(Va) >= limit) {
-            result.clipping_A = 1;
-            result.times_A[result.count_A++] = file->samples[i].timestamp;
-        }
-        if (abs(Vb) >= limit) {
-            result.clipping_B = 1;
-            result.times_B[result.count_B++] = file->samples[i].timestamp;
-        }
-        if (abs(Vc) >= limit) {
-            result.clipping_C = 1;
-            result.times_C[result.count_C++] = file->samples[i].timestamp;
-        }
-    }
     ClippingResult result = {0};
     for (int i = 0; i < file->num_samples; i++) {
         double t = file->samples[i].timestamp;
         double Va = get_voltage(file->samples[i], PHASE_A);
         double Vb = get_voltage(file->samples[i], PHASE_B);
         double Vc = get_voltage(file->samples[i], PHASE_C);
-        if (abs(Va) >= limit) {
+        if (fabs(Va) >= limit) {
             result.times_A[result.count_A++] = t;
         }
-        else if (abs(Vb) >= limit) {
+        if (fabs(Vb) >= limit) {
             result.times_B[result.count_B++] = t;
         }
-        else if (abs(Vc) >= limit) {
+        if (fabs(Vc) >= limit) {
             result.times_C[result.count_C++] = t;
         }
     }

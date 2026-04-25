@@ -18,9 +18,9 @@ typedef struct ClippingResult {
     int count_B;
     int count_C;
 
-    double time_A[1000];
-    double time_B[1000];
-    double time_C[1000];
+    double times_A[1000];
+    double times_B[1000];
+    double times_C[1000];
 } ClippingResult;
 
 //declare functions
