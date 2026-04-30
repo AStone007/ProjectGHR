@@ -1,10 +1,13 @@
+//DEFINES
+
 #ifndef CODINGPROJECT_IO_H
 #define CODINGPROJECT_IO_H
 
-#include <stdio.h>
-#include <dirent.h>
-
 #define MAX_LINE_LENGTH 256
+
+
+
+//STRUCTS
 
 typedef struct {
     double timestamp;
@@ -30,7 +33,6 @@ typedef struct {
     int file_count;
 } Directory;
 
-// ✅ MOVE ClippingResult HERE (VERY IMPORTANT)
 typedef struct {
     int count_A;
     int count_B;
@@ -40,17 +42,20 @@ typedef struct {
     double times_C[1000];
 } ClippingResult;
 
-int access_test(int a, int b);
 
-WaveformSample* assign_memory(int num_samples);
-Directory* allocate_directory(int num_files);
-Directory* load_directory(const char *path);
+
+//FUNCTIONS
+
 WaveformSample* load_file(const char *filepath, int *num_samples);
+Directory* load_directory(const char *path);
+Directory* allocate_directory(int num_files);
+WaveformSample* assign_memory(int num_samples);
 int parse_line(char *line, WaveformSample *sample);
-
-void write_result(File *file, const char *variable_name, double value);
-void write_clipping_result(File *file, ClippingResult result);
-
+void write_report(File *file, const char *base_path);
 void free_directory(Directory *dir);
+
+
+
+
 
 #endif

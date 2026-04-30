@@ -1,8 +1,20 @@
-#include <math.h>
+//INCLUDES
+
+#include <math.h> //
 #include "wf.h"
 #include "io.h"
 
-double get_voltage(WaveformSample sample, Phase phase) {
+
+
+//FUNCTION CODES
+
+
+
+/*.........................................................
+  .................retrieve voltage samples................
+  .........................................................*/
+
+static double get_voltage(WaveformSample sample, Phase phase) {
 
     switch (phase) {
         case PHASE_A: return sample.phase_A_voltage;
@@ -12,10 +24,16 @@ double get_voltage(WaveformSample sample, Phase phase) {
     }
 }
 
-// RMS
+
+
+/*.........................................................
+  ........................RMS..............................
+  .........................................................*/
 double compute_rms(File *file, Phase phase) {
 
-    if (!file || file->num_samples == 0) return 0.0;
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
     double sum_square = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
         double v = get_voltage(file->samples[i], phase);
@@ -24,12 +42,17 @@ double compute_rms(File *file, Phase phase) {
     return sqrt(sum_square / file->num_samples);
 }
 
-// Peak-to-peak
+
+
+/*.........................................................
+  ........................Peak-to-peak.....................
+  .........................................................*/
 double compute_peak_to_peak(File *file, Phase phase) {
 
-    if (!file || file->num_samples == 0) return 0.0;
-    double max = get_voltage(file->samples[0], phase);
-                            //max or min may not be 0
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
+    double max = get_voltage(file->samples[0], phase);//max or min may not be 0
     double min = max;
     for (int i = 1; i < file->num_samples; i++) {
         double v = get_voltage(file->samples[i], phase);
@@ -39,10 +62,16 @@ double compute_peak_to_peak(File *file, Phase phase) {
     return max - min;
 }
 
-//dc offset
+
+
+/*.........................................................
+  .......................dc offset.........................
+  .........................................................*/
 double compute_dc_offset(File *file, Phase phase) {
 
-    if (!file || file->num_samples == 0) return 0.0;
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
     double sum = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
         sum += get_voltage(file->samples[i], phase);
@@ -50,10 +79,14 @@ double compute_dc_offset(File *file, Phase phase) {
     return sum / file->num_samples;
 }
 
-//std dev
+/*.........................................................
+  ........................std dev..........................
+  .........................................................*/
 double compute_std_dev(File *file, Phase phase) {
 
-    if (!file || file->num_samples == 0) return 0.0;
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
     double mean = compute_dc_offset(file, phase);
     double sum = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
@@ -63,8 +96,13 @@ double compute_std_dev(File *file, Phase phase) {
     return sqrt(sum / file->num_samples);
 }
 
-//clipping
+
+
+/*.........................................................
+  .......................clipping..........................
+  .........................................................*/
 ClippingResult count_clipped(File *file, double limit) {
+
     ClippingResult result = {0};
     for (int i = 0; i < file->num_samples; i++) {
         double t = file->samples[i].timestamp;
@@ -84,15 +122,26 @@ ClippingResult count_clipped(File *file, double limit) {
     return result;
 }
 
-//compliance
+
+
+/*.........................................................
+  .......................compliance........................
+  .........................................................*/
 int check_compliance(double rms) {
 
     return (rms >= 207.0 && rms <= 253.0);
 }
 
-// Power factor (read + mean)
+
+
+/*.........................................................
+  .......................Power factor......................
+  .........................................................*/
 double power_factor(File *file) {
 
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
     double sum = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
         sum += file->samples[i].power_factor;
@@ -100,9 +149,16 @@ double power_factor(File *file) {
     return sum / file->num_samples;
 }
 
-// THD mean
+
+
+/*.........................................................
+  .......................THD mean..........................
+  .........................................................*/
 double thd_percent(File *file) {
 
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
     double sum = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
         sum += file->samples[i].thd_percent;
@@ -110,9 +166,16 @@ double thd_percent(File *file) {
     return sum / file->num_samples;
 }
 
-// Frequency mean
+
+
+/*.........................................................
+  ...................Frequency mean........................
+  .........................................................*/
 double frequency(File *file) {
 
+    if (!file || file->num_samples == 0) {
+        return 0.0;
+    }
     double sum = 0.0;
     for (int i = 0; i < file->num_samples; i++) {
         sum += file->samples[i].frequency;
