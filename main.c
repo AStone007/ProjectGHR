@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "io.h"
-#include "wf.h"
+#include "io.h" //io.h is linked to io.c, io.c links in wf.h, wf.h is included in wf.c
+                //this therefore covers all the codes
 
 int main(void) {
 
@@ -19,7 +19,7 @@ int main(void) {
     //compute and write report
     for (int i = 0; i < dir->file_count; i++) {
         File *file = &dir->files[i];
-        printf("Processing file: %s\n", file->filename);
+        //printf("Processing file: %s\n", file->filename); //for debugging
         write_report(file, dir->path);
     }
     if (dir->file_count == 0) {

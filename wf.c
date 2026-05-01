@@ -1,5 +1,7 @@
 //INCLUDES
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <math.h> //
 #include "wf.h"
 #include "io.h"
@@ -14,7 +16,7 @@
   .................retrieve voltage samples................
   .........................................................*/
 
-static double get_voltage(WaveformSample sample, Phase phase) {
+double get_voltage(WaveformSample sample, Phase phase) {
 
     switch (phase) {
         case PHASE_A: return sample.phase_A_voltage;
@@ -181,4 +183,32 @@ double frequency(File *file) {
         sum += file->samples[i].frequency;
     }
     return sum / file->num_samples;
+}
+
+
+
+/*.........................................................
+  .................Sorting algorithm.......................
+  .........................................................*/
+WaveformSample** sort_by_voltage(File *file, Phase phase) {
+    if (!file || file->num_samples == 0) return NULL;
+    // create array of pointers
+    WaveformSample **pointers = malloc(file->num_samples * sizeof(WaveformSample*));
+    if (!pointers) return NULL;
+    // initialise pointers
+    for (int i = 0; i < file->num_samples; i++) {
+        pointers[i] = &file->samples[i];
+    }
+    // --- INSERTION SORT (simple, stable, easy to justify) ---
+    for (int i = 1; i < file->num_samples; i++) {
+        WaveformSample *key = pointers[i];
+        double key_val = fabs(get_voltage(*key, phase));
+        int j = i - 1;
+        while (j >= 0 && fabs(get_voltage(*pointers[j], phase)) > key_val) {
+            pointers[j + 1] = pointers[j];
+            j--;
+        }
+        pointers[j + 1] = key;
+    }
+    return pointers;
 }

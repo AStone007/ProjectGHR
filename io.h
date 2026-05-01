@@ -5,7 +5,10 @@
 
 #define MAX_LINE_LENGTH 256
 
-
+//for bit flags
+#include <stdint.h>
+#define CLIPPING   (1 << 0)   // 00000001 (bit 0 refers to clipping)
+#define RMS_FAIL   (1 << 1)   // 00000010 (bit 1 refers to rms)
 
 //STRUCTS
 
@@ -25,6 +28,9 @@ typedef struct {
     int num_samples;
     char filename[256];
     char filepath[512];
+    uint8_t status_A;
+    uint8_t status_B;
+    uint8_t status_C;
 } File;
 
 typedef struct {

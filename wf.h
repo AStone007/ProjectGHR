@@ -21,6 +21,7 @@ typedef enum {
 
 //FUNCTIONS
 
+double get_voltage(WaveformSample sample, Phase phase);
 double compute_rms(File *file, Phase phase);
 double compute_peak_to_peak(File *file, Phase phase);
 double compute_dc_offset(File *file, Phase phase);
@@ -32,6 +33,8 @@ double thd_percent(File *file);
 double frequency(File *file);
 
 ClippingResult count_clipped(File *file, double limit);
+
+WaveformSample** sort_by_voltage(File *file, Phase phase);
 
 
 

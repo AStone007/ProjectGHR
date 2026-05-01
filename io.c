@@ -1,11 +1,18 @@
 //INCLUDES
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <direct.h>
+#include <dirent.h>
 #include "io.h"
 #include "wf.h"
+
+
+//FORWARD DECLARATIONS
+
+void scan_directory_recursive(const char *base_path, Directory *directory);
+
 
 
 
@@ -26,7 +33,7 @@ WaveformSample* assign_memory(int num_samples) {
         printf("ERROR: Trouble allocating memory for WaveformSample\n");
     }
     else {
-        printf("PROGRESS: Memory space allocated (Waveform sample)\n");
+        printf(".\n");
     }
     return data; //return as only one result needed
 }
@@ -52,12 +59,12 @@ Directory* allocate_directory(int num_files) {
     if (dir == NULL) {
         printf("ERROR: Trouble allocating memory for Directory\n");
         return NULL;}
-    else {printf("PROGRESS: Memory space allocated (Directory)\n");}
+    else {printf(".\n");}
     if (dir->files == NULL) {
         printf("ERROR: Trouble allocating memory for File array\n");
         free(dir);
         return NULL;}
-    else {printf("PROGRESS: Memory space allocated (File array)\n");}
+    else {printf(".\n");}
 
     return dir;
 }
@@ -235,7 +242,7 @@ void write_report(File *file, const char *base_path) {
     snprintf(results_folder, sizeof(results_folder), "%s/results", folder);
     mkdir(results_folder); //now actually create folder for results
 
-    printf("Writing to: %s\n", result_filename); //to help with debugging
+    //printf("Writing to: %s\n", result_filename); //to help with debugging remove "//" to activate again
 
     FILE *out = fopen(result_filename, "w"); //open results file
     if (!out) { //if there is file struggles to open, handle gently
@@ -243,7 +250,7 @@ void write_report(File *file, const char *base_path) {
         return;
     }
 
-    double limit = 325.0; //store clipping result in clip
+    double limit = 324.9; //store clipping result in clip
     ClippingResult clip = count_clipped(file, limit);
 
 
@@ -269,7 +276,8 @@ void write_report(File *file, const char *base_path) {
         double p2p = compute_peak_to_peak(file, p);
         double dc  = compute_dc_offset(file, p);
         double std = compute_std_dev(file, p);
-
+        WaveformSample **sorted = sort_by_voltage(file, p); //use two "*" as Waveform *samples is data and just
+                                                            //need addresses of the data for sorting
         int count;
         double *times;
         if (p == PHASE_A) {
@@ -284,6 +292,31 @@ void write_report(File *file, const char *base_path) {
         }
 
 
+        uint8_t *status; //status points to 8 bit unsigned integer
+
+        //whatever phase is, status is the same
+        if (p == PHASE_A) {
+            status = &file->status_A;
+        }
+        else if (p == PHASE_B) {
+            status = &file->status_B;
+        }
+        else {
+            status = &file->status_C;
+        }
+
+        // reset flags so that recorded errors are not passed on
+        *status = 0;
+        // set RMS fail flag
+        if (!check_compliance(rms)) {
+            *status |= RMS_FAIL;
+        }
+        // set clipping flag
+        if (count > 0) {
+            *status |= CLIPPING;
+        }
+
+
         //display phase-wise metrics
         fprintf(out, "\tRMS:\t\t\t%.5f\n", rms);
         fprintf(out, "\tPeak-to-Peak:\t\t%.5f\n", p2p);
@@ -293,10 +326,8 @@ void write_report(File *file, const char *base_path) {
 
         fprintf(out, "\tClipping:\t\t%d out of %d samples\n", count, file->num_samples);
         fprintf(out, "\tOccurred at times:\t");
-
-
         if (count == 0) { //if there is no clipping display NONE
-            fprintf(out, "NONE\n");
+            fprintf(out, "NONE\n\n");
         }
         else { //if there is clipping, display times
             for (int i = 0; i < count; i++) {
@@ -305,10 +336,33 @@ void write_report(File *file, const char *base_path) {
                     fprintf(out, ", ");
                 }
             }
-            fprintf(out, "\n");
+            fprintf(out, "\n\n");
         }
 
+        fprintf(out, "\tStatus:\t\t\t"); //display if there is CLIPPING or an RMS fail
+        if (*status == 0) {
+            fprintf(out, "OK");
+        } else {
+            if (*status & RMS_FAIL)
+                fprintf(out, "RMS_FAIL ");
+            if (*status & CLIPPING)
+                fprintf(out, "CLIPPING ");
+        }
+        fprintf(out, "\n");
+
+        fprintf(out, "\tTop 5 |V| values:\t"); //display top 5 voltages
+        if (sorted != NULL) {
+            int n = file->num_samples;
+            for (int i = n - 1; i >= n - 5 && i >= 0; i--) {
+                double v = get_voltage(*sorted[i], p);
+                fprintf(out, "%.3f", fabs(v));
+                if (i > n - 5 && i > 0)
+                    fprintf(out, ", ");
+            }
+        }
+        fprintf(out, "\n");
         fprintf(out, "\n\n");
+        free(sorted);
     }
 
 
